@@ -1,0 +1,7 @@
+npm init -y
+npm install mysql
+npm install sequelize mysql2
+npm install react-google-recaptcha //front
+npm install express cors body-parser
+npm install jsonwebtoken
+npm install axios

@@ -1,0 +1,24 @@
+/* Fondo global en degradado */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(to right, rgba(106, 17, 203, 0.1), rgba(37, 117, 252, 0.1));
+}
+
+/* Estilo opcional para scroll o animaciones generales */
+/* Fondo global en degradado */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(to right, rgba(106, 17, 203, 0.1), rgba(37, 117, 252, 0.1));
+}
+
+/* Estilo opcional para scroll o animaciones generales */
+body {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}

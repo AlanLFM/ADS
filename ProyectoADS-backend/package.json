@@ -1,0 +1,33 @@
+{
+  "name": "backendloginreactnodejs",
+  "version": "1.0.0",
+  "main": "Aplicacion.js",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "bignumber.js": "^9.0.0",
+    "body-parser": "^2.2.0",
+    "core-util-is": "^1.0.3",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "inherits": "^2.0.4",
+    "isarray": "^1.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.14.1",
+    "process-nextick-args": "^2.0.1",
+    "readable-stream": "^2.3.7",
+    "safe-buffer": "^5.1.2",
+    "sequelize": "^6.37.7",
+    "sqlstring": "^2.3.1",
+    "string_decoder": "^1.1.1",
+    "util-deprecate": "^1.0.2"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "description": ""
+}

@@ -1,0 +1,407 @@
+.lotus-login-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #410101 20%, #43156a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.lotus-login-wrapper {
+  display: flex;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
+  min-height: 500px;
+}
+
+.lotus-login-panel {
+  flex: 1;
+  min-width: 400px;
+}
+
+.lotus-login-form {
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lotus-login-content input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  margin-bottom: 1.5rem;
+}
+
+.lotus-password-input {
+  position: relative;
+}
+
+.lotus-password-input input {
+  padding-right: 45px;
+}
+
+.lotus-password-input button {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.3s ease;
+}
+
+.lotus-password-input button:hover {
+  color: #e91e63;
+}
+
+.lotus-login-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #ff7043 0%, #e91e63 100%);
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.lotus-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
+
+.lotus-login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.lotus-login-header h3 {
+  font-weight: bold;
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.lotus-login-header p {
+  color: #6c757d;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.lotus-login-footer {
+  text-align: center;
+}
+
+.lotus-login-footer a {
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.lotus-login-footer a:hover {
+  color: #e91e63;
+  text-decoration: underline;
+}
+
+.lotus-login-footer div {
+  margin-top: 1rem;
+}
+
+.lotus-login-footer span {
+  color: #6c757d;
+}
+
+.lotus-create-btn {
+  background: none;
+  border: 2px solid #e91e63;
+  color: #e91e63;
+  padding: 0.375rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.lotus-create-btn:hover {
+  background-color: #e91e63;
+  color: white;
+}
+
+.lotus-login-info {
+  background: linear-gradient(135deg, #ff7043 0%, #e91e63 50%, #9c27b0 100%);
+  color: white;
+  padding: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.lotus-info-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  background-image:
+    radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+  background-size: 50px 50px;
+}
+
+.lotus-info-text {
+  text-align: center;
+  z-index: 1;
+  max-width: 400px;
+}
+
+.lotus-info-text h2 {
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+.lotus-info-text p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Responsive: ocultar panel derecho en móvil */
+@media (max-width: 768px) {
+  .lotus-login-info {
+    display: none;
+  }
+}
+
+.lotus-login-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #410101 20%, #43156a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.lotus-login-wrapper {
+  display: flex;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
+  min-height: 500px;
+}
+
+.lotus-login-panel {
+  flex: 1;
+  min-width: 400px;
+}
+
+.lotus-login-form {
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lotus-login-content input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  margin-bottom: 1.5rem;
+}
+
+.lotus-password-input {
+  position: relative;
+}
+
+.lotus-password-input input {
+  padding-right: 45px;
+}
+
+.lotus-password-input button {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.3s ease;
+}
+
+.lotus-password-input button:hover {
+  color: #e91e63;
+}
+
+.lotus-login-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #ff7043 0%, #e91e63 100%);
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.lotus-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
+
+.lotus-login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.lotus-login-header h3 {
+  font-weight: bold;
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.lotus-login-header p {
+  color: #6c757d;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.lotus-login-footer {
+  text-align: center;
+}
+
+.lotus-login-footer a {
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.lotus-login-footer a:hover {
+  color: #e91e63;
+  text-decoration: underline;
+}
+
+.lotus-login-footer div {
+  margin-top: 1rem;
+}
+
+.lotus-create-btn {
+  background: none;
+  border: 2px solid #e91e63;
+  color: #e91e63;
+  padding: 0.375rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.lotus-create-btn:hover {
+  background-color: #e91e63;
+  color: white;
+}
+
+.lotus-login-info {
+  background: linear-gradient(135deg, #ff7043 0%, #e91e63 50%, #9c27b0 100%);
+  color: white;
+  padding: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.lotus-info-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  background-image:
+    radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+  background-size: 50px 50px;
+}
+
+.lotus-info-text {
+  text-align: center;
+  z-index: 1;
+  max-width: 400px;
+}
+
+.lotus-info-text h2 {
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+.lotus-info-text p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Responsive: ocultar panel derecho en móvil */
+@media (max-width: 768px) {
+  .lotus-login-info {
+    display: none;
+  }
+}
