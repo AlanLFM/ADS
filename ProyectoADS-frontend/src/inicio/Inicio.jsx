@@ -21,8 +21,17 @@ export default function App() {
 
   useEffect(() => {
     const token = sessionStorage.getItem('token');
+    if (!token) {
+      console.error("No se encontró el token de sesión. Redirigiendo a la página");
+      navigate('/');
+    }
     if (token) {
       const decoded = jwtDecode(token);
+      if (!decoded || !decoded.user || !decoded.email) {
+        console.error("Token inválido o datos faltantes en el token.");
+        navigate('/');
+      }
+
       setUsuario(decoded.user);
       setEmail(decoded.email);
 
@@ -208,7 +217,6 @@ export default function App() {
 
       <div className='p-5 text-center bg-light'>
         <img src={logo} alt="CrosStudy Logo" style={{ width: '250px', height: '250px' }} />
-        <h4 className='mb-3'>Conecta tus cuentas:</h4>
       </div>
 
       <MDBContainer className="mt-4">

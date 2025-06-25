@@ -7,6 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react';
 import Google from '../googleB/google.jsx';
 import perfil from '../assets/perfil.png';
+import VincularMicrosoft from '../Microsoft/microsoft.jsx';
 
 export default function PersonalProfile() {
 
@@ -72,10 +73,7 @@ export default function PersonalProfile() {
                             ) : (
                                 <Google />
                             )}
-
-                    <a className='btn-primary' href='' role='button'>
-                        Microsoft Teams
-                    </a>
+                            <VincularMicrosoft />
                 </div>
             </div>
         </div>

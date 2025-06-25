@@ -7,13 +7,15 @@ const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const SECRET_KEY = 'crosstudy_jwt_secret';
 const RECAPTCHA_SECRET = '6LcdUWgrAAAAAEmz-zt2-BZUWOtESlt4gHnJmaDU';
+require('dotenv').config();
+const iaControl = require('./iaControl'); // Importar el controlador de IA
 
-const app = express();
 const PORT = 3001;
-
+const app = express();
+app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
-
+app.use(iaControl)
 // Endpoint de login
 app.post('/login', async (req, res) => {
   const { username, password, recaptchaToken } = req.body;
@@ -151,6 +153,81 @@ app.post('/api/usuario/googleToken', async (req, res) => {
   }
 });
   
+//Redirigir al usuario a Microsoft para vincular su cuenta
+app.get('/api/vincularMicrosoft', (req, res) => {
+  const { idUsuario } = req.query; // o token decoded
+  const scopes = [
+    'offline_access',
+    'User.Read',
+    'Tasks.Read',
+    'Group.Read.All'
+  ].join(' ');
+
+  const authUrl = `https://login.microsoftonline.com/${process.env.MICROSOFT_TENANT_ID}/oauth2/v2.0/authorize` +
+    `?client_id=${process.env.MICROSOFT_CLIENT_ID}` +
+    `&response_type=code` +
+    `&redirect_uri=${encodeURIComponent(process.env.MICROSOFT_REDIRECT_URI)}` +
+    `&response_mode=query` +
+    `&scope=${encodeURIComponent(scopes)}` +
+    `&state=${idUsuario}`;
+
+  res.redirect(authUrl);
+});
+
+//Recibir el callback de Microsoft para procesar token y guardar en BD
+app.get('/api/callbackMicrosoft', async (req, res) => {
+  const { code, state } = req.query; // state = idUsuario
+
+  try {
+    console.log('Solicitando token con:', {
+      client_id: process.env.MICROSOFT_CLIENT_ID,
+      scope: 'offline_access User.Read Tasks.Read Group.Read.All',
+      code,
+      redirect_uri: process.env.MICROSOFT_REDIRECT_URI,
+      grant_type: 'authorization_code',
+      client_secret: process.env.MICROSOFT_CLIENT_SECRET,
+    });
+    const tokenRes = await axios.post(
+      'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+      new URLSearchParams({
+        client_id: process.env.MICROSOFT_CLIENT_ID,
+        scope: 'offline_access User.Read Tasks.Read Group.Read.All',
+        code: code,
+        redirect_uri: process.env.MICROSOFT_REDIRECT_URI,
+        grant_type: 'authorization_code',
+        client_secret: process.env.MICROSOFT_CLIENT_SECRET,
+      }),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    const { access_token, refresh_token, expires_in } = tokenRes.data;
+    const vencimiento = new Date(Date.now() + expires_in * 1000);
+
+    // Obtener info del usuario Microsoft
+    const perfil = await axios.get('https://graph.microsoft.com/v1.0/me', {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+
+    const email = perfil.data.mail || perfil.data.userPrincipalName;
+
+    // Guardar tokens e info en base de datos
+    await Usuario.update(
+      {
+        Microsoft_UID: perfil.data.id,
+        Microsoft_Email: email,
+        Microsoft_AccessToken: access_token,
+        Microsoft_RefreshToken: refresh_token,
+        Microsoft_Token_Expiracion: vencimiento,
+      },
+      { where: { Id_Usuario: state } }
+    );
+
+    res.send('Cuenta de Microsoft vinculada exitosamente. Puede cerrar esta pestaña.');
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    res.status(500).send('Error al vincular cuenta Microsoft.');
+  }
+});
 
 
 app.listen(PORT, () => {

@@ -65,11 +65,19 @@ const Usuario = sequelize.define('Usuario', {
   
 
   //  Microsoft
-  Microsoft_ID: {
+  Microsoft_UID: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  Microsoft_email: {
     type: DataTypes.STRING(100),
     allowNull: true
   },
   Microsoft_AccessToken: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  Microsoft_RefreshToken: {
     type: DataTypes.TEXT,
     allowNull: true
   },

@@ -3,6 +3,7 @@ import Login from './login/Login';
 import Registro from './registro/Registro';
 import Inicio from './inicio/Inicio';
 import Perfil from './perfil/Perfil';
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 
 function App() {
   return (
