@@ -23,38 +23,42 @@ const [idUsuario, setIdUsuario] = useState('');
   });
 
   const vincularMoodle = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setTareas([]);
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  setTareas([]);
 
+  try {
+    const res = await fetch('http://localhost:3001/api/moodle/tareas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
 
-    try {
-      const res = await fetch('http://localhost:3001/api/moodle/tareas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
+    const data = await res.json();
 
-      
-      if (!res.ok) throw new Error(data.message || 'Error al consultar Moodle');
-      setTareas(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    if (!res.ok) throw new Error(data.message || 'Error al consultar Moodle');
+
+    // Actualizas estado (para mostrar en pantalla si es necesario)
+    setTareas(data);
+
+    // Usas directamente la data para guardar en el backend
     await fetch('http://localhost:3001/api/moodle/guardar-tareas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            tareas: tareas,
-            Id_Usuario: idUsuario
-        })
-        });
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tareas: data,
+        Id_Usuario: idUsuario
+      })
+    });
 
-  };
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Vincular cuenta e-cec">

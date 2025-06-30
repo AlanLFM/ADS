@@ -376,7 +376,6 @@ app.post('/tareas', async (req, res) => {
 
 app.post('/api/moodle/guardar-tareas', async (req, res) => {
   const { tareas, Id_Usuario } = req.body;
-  console.log(`Guardando tareas para el usuario con ID: ${Id_Usuario}`);
   
   if (!Array.isArray(tareas) || !Id_Usuario) {
     return res.status(400).json({ message: 'Faltan datos requeridos (tareas o Id_Usuario)' });
@@ -386,10 +385,13 @@ app.post('/api/moodle/guardar-tareas', async (req, res) => {
     let guardadas = 0;
 
     for (const tarea of tareas) {
+    console.log(`Guardando tarea: ${tarea.name} - ${tarea.description} para el usuario ID: ${Id_Usuario}`);
+    
       
       const titulo = tarea.name?.trim() || 'Sin título';
-      const contenido = tarea.description?.trim() || 'Sin contenido';
-      const curso = tarea.course?.fullname?.trim() || 'Sin curso';
+      const contenido = tarea.description?.trim() || 'Sin contenido';const curso = tarea.course && tarea.course.fullname
+      ? tarea.course.fullname.trim()
+      : 'Sin curso';
       console.log("Curso obtenido " +curso);
 
 
@@ -410,10 +412,14 @@ app.post('/api/moodle/guardar-tareas', async (req, res) => {
 
       if (creado) guardadas++;
     }
-
+    
     res.json({ message: `Tareas guardadas correctamente (${guardadas})` });
+    console.log(`Tareas guardadas correctamente (${guardadas}) para el usuario ID: ${Id_Usuario}`);
+    
   } catch (error) {
     console.error('Error al guardar tareas:', error);
+    console.log(`Error al guardar tareas para el usuario ID: ${Id_Usuario}`, error.message);
+    
     res.status(500).json({ message: 'Error al guardar tareas', error: error.message });
   }
 });
