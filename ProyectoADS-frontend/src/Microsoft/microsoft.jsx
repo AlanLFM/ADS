@@ -1,6 +1,6 @@
 import React from 'react';
 import { jwtDecode } from 'jwt-decode';
-
+import {Button} from '@mui/material';
 const VincularMicrosoft = () => {
   const handleVincular = () => {
     // Suponemos que el token JWT está en localStorage
@@ -19,9 +19,16 @@ const VincularMicrosoft = () => {
   };
 
   return (
-      <button onClick={handleVincular}>
-        Vincular con Microsoft
-      </button>
+    <>
+    <Button 
+        variant="contained" 
+        onClick={handleVincular}
+        sx={{
+            backgroundColor: '#764ba2',
+            '&:hover': { backgroundColor: '#5a3978' }
+        }}
+        >Vincular </Button>
+    </>
   );
 };
 

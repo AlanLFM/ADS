@@ -2,6 +2,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../firebase/config";
 import { jwtDecode } from "jwt-decode";
 import React, { useState, useEffect } from "react";
+import { Button } from "@mui/material";
 function Google() {
     const [idUsuario, setIdUsuario] = useState("");
 
@@ -54,9 +55,16 @@ function Google() {
   
 
   return (
-    <button onClick={handleVincular} className="bg-blue-500 text-white px-4 py-2 rounded">
-      Vincular con google
-    </button>
+    <>
+    <Button 
+        variant="contained" 
+        onClick={handleVincular}
+        sx={{
+            backgroundColor: '#764ba2',
+            '&:hover': { backgroundColor: '#5a3978' }
+        }}
+        >Vincular </Button>
+    </>
   );
 }
 

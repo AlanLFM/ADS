@@ -9,6 +9,9 @@ import TareaCard from '../tarea/tareaCard.jsx';
 import TareaCardCEC from '../tarea/tareaCEC.jsx';
 import TareaCardTodo from '../tarea/tareaTodo.jsx';
 import {Box} from '@mui/material';
+import letrero from '../assets/letrero.png';
+import letrero2 from '../assets/letrero2.png';
+
 
 import {
   AppBar, Toolbar, Typography, IconButton, Container,
@@ -280,17 +283,22 @@ export default function App() {
     sx={{
       minHeight: '100vh',
       background: darkMode
-        ? 'linear-gradient(135deg, #0f2027, #203a43,rgb(85, 44, 100))'
-        : 'linear-gradient(135deg, rgb(235, 111, 111), rgb(253, 155, 97))',
+        ? 'linear-gradient(135deg,rgb(12, 37, 75),rgb(12, 62, 95),rgb(80, 10, 106))'
+        : 'linear-gradient(135deg, rgb(198, 145, 145),rgb(182, 102, 102),rgb(176, 84, 38))',
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
     }}
   >
-    <AppBar position="static">
+    <AppBar position="static" sx={{
+    backgroundColor: theme.appBar.main }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <img src={logo} alt="Logo" style={{ width: 32, marginRight: 12 }} />
-          <Typography variant="h6">CrosStudy</Typography>
+          <img
+              src={darkMode ? letrero: letrero2}
+              alt="CrosStudy"
+              style={{ height: 120 }}
+            />
         </div>
         <div>
           <IconButton onClick={() => setDarkMode(!darkMode)} color="inherit">
