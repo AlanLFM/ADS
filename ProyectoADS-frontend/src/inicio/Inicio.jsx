@@ -1,60 +1,140 @@
+// Versión mejorada con MUI y cambio de tema por íconos
+
 import React, { useState, useEffect } from 'react';
-import './Inicio.css';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logos.png';
+import { lightTheme, darkTheme } from './theme.js';
 import { jwtDecode } from 'jwt-decode';
-import TareaCard from '../tarea/tareaCard.jsx'; // Importar el nuevo componente
+import TareaCard from '../tarea/tareaCard.jsx';
+import TareaCardCEC from '../tarea/tareaCEC.jsx';
+import TareaCardTodo from '../tarea/tareaTodo.jsx';
+import {Box} from '@mui/material';
+
 import {
-  MDBNavbar, MDBNavbarToggler, MDBIcon,
-  MDBNavbarNav, MDBNavbarItem, MDBNavbarLink,
-  MDBContainer, MDBRow, MDBCol, MDBSpinner
-} from 'mdb-react-ui-kit';
+  AppBar, Toolbar, Typography, IconButton, Container,
+  Grid, Card, CardContent, Badge, CssBaseline, createTheme,
+  ThemeProvider, useMediaQuery, CircularProgress
+} from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import GoogleIcon from '@mui/icons-material/Google';
+import SchoolIcon from '@mui/icons-material/School';
+import MicrosoftIcon from '@mui/icons-material/Microsoft';
 
 export default function App() {
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
+  const theme = darkMode ? darkTheme : lightTheme;
   const [usuario, setUsuario] = useState("");
   const [email, setEmail] = useState("");
+  const [idUsuario, setIdUsuario] = useState("");
   const [access, setAccessToken] = useState("");
   const [cursos, setCursos] = useState([]);
   const [tareasVisibles, setTareasVisibles] = useState([]);
+  const [tareasCEC, setTareasCEC] = useState([]);
   const [cargando, setCargando] = useState(false);
+  const [tareasTodo, setTareasTodo] = useState([]);
+  const [temaOscuro, setTemaOscuro] = useState(false);
+
+  // Cargar preferencia de tema del localStorage al iniciar
+  useEffect(() => {
+    const temaGuardado = localStorage.getItem('temaOscuro');
+    if (temaGuardado) {
+      setTemaOscuro(JSON.parse(temaGuardado));
+    }
+  }, []);
+
+  // Guardar preferencia de tema cuando cambie
+  useEffect(() => {
+    localStorage.setItem('temaOscuro', JSON.stringify(temaOscuro));
+  }, [temaOscuro]);
+
+  const toggleTema = () => {
+    setTemaOscuro(!temaOscuro);
+  };
+
+  // Colores del tema
+  const tema = {
+    light: {
+      background: '#f8f9fa',
+      color: '#495057',
+      navbarBg: '#fff',
+      navbarBorder: '#e9ecef',
+      cardBg: '#fff',
+      cardBorder: '#e9ecef',
+      titleColor: '#212529',
+      mutedColor: '#6c757d',
+      iconColor: '#495057'
+    },
+    dark: {
+      background: '#1a1a1a',
+      color: '#e9ecef',
+      navbarBg: '#2d2d2d',
+      navbarBorder: '#404040',
+      cardBg: '#2d2d2d',
+      cardBorder: '#404040',
+      titleColor: '#ffffff',
+      mutedColor: '#adb5bd',
+      iconColor: '#e9ecef'
+    }
+  };
+
+  const coloresActuales = temaOscuro ? tema.dark : tema.light;
 
   useEffect(() => {
     const token = sessionStorage.getItem('token');
     if (!token) {
       console.error("No se encontró el token de sesión. Redirigiendo a la página");
       navigate('/');
+      return;
     }
-    if (token) {
-      const decoded = jwtDecode(token);
-      if (!decoded || !decoded.user || !decoded.email) {
-        console.error("Token inválido o datos faltantes en el token.");
-        navigate('/');
+
+    const decoded = jwtDecode(token);
+    if (!decoded || !decoded.user || !decoded.email) {
+      console.error("Token inválido o datos faltantes en el token.");
+      navigate('/');
+      return;
+    }
+
+    const userId = decoded.id;
+    setUsuario(decoded.user);
+    setEmail(decoded.email);
+    setIdUsuario(userId);
+
+    const fetchData = async () => {
+      try {
+        // Google token
+        const googleRes = await fetch('http://localhost:3001/api/usuario/googleToken', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ Id_Usuario: userId })
+        });
+        const googleData = await googleRes.json();
+        if (googleData.Google_AccessToken) {
+          setAccessToken(googleData.Google_AccessToken);
+        }
+
+        // Microsoft To-Do tareas
+        const todoRes = await fetch(`http://localhost:3001/api/todo/tareas?Id_Usuario=${userId}`);
+        const todoData = await todoRes.json();
+        console.log("Tareas todo: ", todoData);
+
+        setTareasTodo(todoData);
+
+        // Moodle CEC tareas
+        const cecRes = await fetch(`http://localhost:3001/api/usuario/${userId}/tareas?sistema=E-CEC`);
+        const cecData = await cecRes.json();
+        setTareasCEC(cecData);
+
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
       }
-
-      setUsuario(decoded.user);
-      setEmail(decoded.email);
-
-      fetch('http://localhost:3001/api/usuario/googleToken', {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ Id_Usuario: decoded.id })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.Google_AccessToken) {
-            console.log("Token de Google obtenido:", data.Google_AccessToken);
-            setAccessToken(data.Google_AccessToken);
-          } else {
-            console.warn("No se obtuvo token de Google.");
-          }
-        })
-        .catch(err => console.error("Error al obtener el token de Google:", err));
-    }
-  }, []);
+    };
+    fetchData();
+  }, [navigate]);
 
   useEffect(() => {
     if (access) {
@@ -167,8 +247,6 @@ export default function App() {
           });
 
           if (asignadasYNoVencidas?.length > 0) {
-            console.log(`📌 Tareas activas para el curso ${courseName} (${tarea.title}):`);
-            
             tareasEncontradas.push(...asignadasYNoVencidas.map(sub => ({
               cursoId: courseId,
               cursoNombre: courseName,
@@ -192,100 +270,95 @@ export default function App() {
     return tareasEncontradas;
   }
 
+  // Calcular totales para mostrar en badges
+  const totalTareas = tareasVisibles.length + (Array.isArray(tareasCEC) ? tareasCEC.length : 0) + (Array.isArray(tareasTodo) ? tareasTodo.length : 0);
+
   return (
-    <div>
-      <MDBNavbar expand='lg' light bgColor='white'>
-        <MDBContainer fluid>
-          <MDBNavbarToggler aria-label='Toggle navigation'>
-            <MDBIcon fas icon='bars' />
-          </MDBNavbarToggler>
-          <div className='collapse navbar-collapse'>
-            <MDBNavbarNav right>
-              <MDBNavbarItem active>
-                <MDBNavbarLink onClick={() => navigate('/Perfil')}>{usuario}</MDBNavbarLink>
-              </MDBNavbarItem>
-              <MDBNavbarItem>
-                <MDBNavbarLink href='#'>Opciones</MDBNavbarLink>
-              </MDBNavbarItem>
-              <MDBNavbarItem>
-                <MDBNavbarLink href='#' onClick={handleCerrar}>Cerrar sesión</MDBNavbarLink>
-              </MDBNavbarItem>
-            </MDBNavbarNav>
-          </div>
-        </MDBContainer>
-      </MDBNavbar>
+    <ThemeProvider theme={theme}>
+  <CssBaseline />
+  <Box
+    sx={{
+      minHeight: '100vh',
+      background: darkMode
+        ? 'linear-gradient(135deg, #0f2027, #203a43,rgb(85, 44, 100))'
+        : 'linear-gradient(135deg, rgb(235, 111, 111), rgb(253, 155, 97))',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+    }}
+  >
+    <AppBar position="static">
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img src={logo} alt="Logo" style={{ width: 32, marginRight: 12 }} />
+          <Typography variant="h6">CrosStudy</Typography>
+        </div>
+        <div>
+          <IconButton onClick={() => setDarkMode(!darkMode)} color="inherit">
+            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+          <IconButton onClick={() => navigate('/Perfil')} color="inherit">
+            <Typography variant="body2">{usuario}</Typography>
+          </IconButton>
+          <IconButton onClick={handleCerrar} color="error">
+            <Typography variant="body2">Salir</Typography>
+          </IconButton>
+        </div>
+      </Toolbar>
+    </AppBar>
 
-      <div className='p-5 text-center bg-light'>
-        <img src={logo} alt="CrosStudy Logo" style={{ width: '250px', height: '250px' }} />
-      </div>
+    <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, sm: 4, md: 6 } }}>
+      <Typography variant="h5" gutterBottom>
+        Mis Tareas ({totalTareas})
+      </Typography>
 
-      <MDBContainer className="mt-4">
-        <MDBRow>
-          <MDBCol md={12}>
-            <div className="classroom-content mb-4">
-              <h5>
-                <MDBIcon fab icon="google" className="me-2 text-primary" />
-                Google Classroom
-              </h5>
-              <p className="text-muted">
-                {cargando ? 'Cargando información...' : 'Información cargada correctamente'}
-              </p>
-            </div>
-          </MDBCol>
-        </MDBRow>
-
-        <MDBRow>
-          <MDBCol md={12}>
-            <div className="tareas-content">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5>
-                  <MDBIcon fas icon="tasks" className="me-2 text-success" />
-                  Tareas Pendientes
-                </h5>
-                {!cargando && tareasVisibles.length > 0 && (
-                  <span className="badge bg-primary rounded-pill">
-                    {tareasVisibles.length} tarea{tareasVisibles.length !== 1 ? 's' : ''}
-                  </span>
-                )}
-              </div>
-
-              {cargando ? (
-                <div className="text-center py-5">
-                  <MDBSpinner color="primary" />
-                  <p className="mt-3 text-muted">Cargando tareas...</p>
-                </div>
-              ) : tareasVisibles.length === 0 ? (
-                <div className="text-center py-5">
-                  <MDBIcon fas icon="check-circle" size="3x" className="text-success mb-3" />
-                  <h6 className="text-muted">¡Excelente! No tienes tareas pendientes.</h6>
-                  <p className="text-muted">Todas tus tareas han sido completadas o no hay tareas asignadas.</p>
-                </div>
-              ) : (
-                <div>
-                  {tareasVisibles.map((tarea, index) => (
-                    <TareaCard 
-                      key={`${tarea.cursoId}-${tarea.idEntrega}-${index}`} 
-                      tarea={tarea} 
-                    />
-                  ))}
-                </div>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={4} lg={4} xl={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <GoogleIcon sx={{ mr: 1 }} /> Classroom
+              </Typography>
+              {cargando ? <CircularProgress /> : (
+                tareasVisibles.length === 0
+                  ? <Typography variant="body2">Sin tareas</Typography>
+                  : tareasVisibles.map((t, i) => <TareaCard key={i} tarea={t} />)
               )}
-            </div>
-          </MDBCol>
-        </MDBRow>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <MDBRow className="mt-4">
-          <MDBCol md={12}>
-            <div className="teams-content">
-              <h5>
-                <MDBIcon fab icon="microsoft" className="me-2 text-info" />
-                Microsoft Teams
-              </h5>
-              <p className="text-muted">Próximamente: Integración con Microsoft Teams</p>
-            </div>
-          </MDBCol>
-        </MDBRow>
-      </MDBContainer>
-    </div>
+        <Grid item xs={12} sm={6} md={4} lg={4} xl={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <SchoolIcon sx={{ mr: 1 }} /> E-CEC
+              </Typography>
+              {tareasCEC.length === 0
+                ? <Typography variant="body2">Sin conexión</Typography>
+                : tareasCEC.map((t, i) => <TareaCardCEC key={i} tarea={t} />)}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4} lg={4} xl={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <MicrosoftIcon sx={{ mr: 1 }} /> Microsoft To-Do
+              </Typography>
+              {Array.isArray(tareasTodo) && tareasTodo.length > 0 ? (
+                    tareasTodo.map((t, i) => <TareaCardTodo key={i} tarea={t} />)
+                  ) : (
+                    <Typography  variant= "body2" > Sin conexión</Typography>)
+                    }
+
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
+  </Box>
+</ThemeProvider>
+
   );
 }

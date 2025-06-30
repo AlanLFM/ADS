@@ -43,7 +43,8 @@ CREATE TABLE Tareas (
     Titulo_tarea VARCHAR(100) NOT NULL,
     Contenido TEXT,
     Id_Usuario INT,
-    Sistena varchar(50) null,
+    Sistema varchar(50) null,
+    Curso varchar(100) null,
     FOREIGN KEY (Id_Usuario) REFERENCES Usuario(Id_Usuario)
         ON DELETE CASCADE
         ON UPDATE CASCADE

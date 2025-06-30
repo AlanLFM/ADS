@@ -3,8 +3,9 @@ const router = express.Router();
 const axios = require('axios');
 
 router.post('/api/resolver-tarea', async (req, res) => {
+  console.log("Recibiendo solicitud para resolver tarea:", req.body);
   const { titulo } = req.body;
-
+  console.log("Recibiendo solicitud para resolver tarea:", titulo);
   if (!titulo) {
     return res.status(400).json({ error: "Falta el campo 'titulo' en el body" });
   }
@@ -25,6 +26,7 @@ router.post('/api/resolver-tarea', async (req, res) => {
     
     res.json({ respuesta: respuesta.data.response });
   } catch (error) {
+    log.error("Error al consultar IA:", error);
     res.status(500).json({ error: 'Error al generar respuesta de IA', detalle: error.message });
   }
 });

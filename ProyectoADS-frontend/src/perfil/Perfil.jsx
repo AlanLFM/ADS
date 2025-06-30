@@ -6,17 +6,20 @@ import './Perfil.css';
 import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react';
 import Google from '../googleB/google.jsx';
+import { useNavigate } from 'react-router-dom';
 import perfil from '../assets/perfil.png';
 import VincularMicrosoft from '../Microsoft/microsoft.jsx';
-
+import ECEC from '../E-CEC/CEC.jsx';
 export default function PersonalProfile() {
-
+    
+    const navigate = useNavigate();
     const [usuario, setUsuario] = useState("")
     const [email, setEmail]= useState("")
     const [idUsuario, setIdUsuario] = useState("");
     const [googleVinculado, setGoogleVinculado] = useState(false);
     const [fotoPerfil, setFotoPerfil] = useState("");
     const [correoGoogle, setCorreoGoogle] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
   const token = sessionStorage.getItem('token');
@@ -56,6 +59,9 @@ export default function PersonalProfile() {
   
   return (
     <div className="contenedor-grandote">
+      <button className="btn-atras" onClick={() => navigate('/')}>
+       Regresar
+      </button> 
         <div className="card">
             <img src={fotoPerfil} />
             <div>
@@ -74,6 +80,13 @@ export default function PersonalProfile() {
                                 <Google />
                             )}
                             <VincularMicrosoft />
+                             <button onClick={() => setIsModalOpen(true)}>
+                                    Vincular cuenta e-cec
+                                  </button>
+                              
+                            <ECEC isOpen={isModalOpen}
+                            onClose={()=>setIsModalOpen(false)}/>    
+                            
                 </div>
             </div>
         </div>

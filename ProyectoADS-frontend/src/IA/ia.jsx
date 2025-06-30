@@ -6,6 +6,8 @@ import {
 } from 'mdb-react-ui-kit';
 import pensando from '../assets/pensandoA.png'; // Imagen de ardilla pensando
 import ardilla from '../assets/ardillaIA.png'; // Imagen de ardilla normal
+
+
 const AsistenteIA = ({ isOpen, onClose, tarea }) => {
   const [respuesta, setRespuesta] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -22,28 +24,83 @@ const AsistenteIA = ({ isOpen, onClose, tarea }) => {
 
     setCargando(true);
     setError('');
+    console.log("Consultando IA para tarea:", tarea.Sistema);
     
-    try {
-      const res = await fetch('http://localhost:3001/api/resolver-tarea', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          titulo: tarea.titulo,
-          descripcion: tarea.descripcion,
-          cursoNombre: tarea.cursoNombre,
-          fechaEntrega: tarea.fechaEntrega
-        })
-      });
-      
-      if (!res.ok) throw new Error('Error en la consulta');
-      
-      const data = await res.json();
-      setRespuesta(data.respuesta || 'Sin respuesta');
-      
-    } catch (err) {
-      setError('No se pudo obtener la respuesta. Intenta de nuevo.');
-    } finally {
-      setCargando(false);
+    if (tarea.Sistema === 'Todo') {
+      console.log("Consultando IA para tarea Todo en IA:", tarea);
+      try {
+        const res = await fetch('http://localhost:3001/api/resolver-tarea', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titulo: tarea.title,
+            importance: tarea.importance,
+            descripcion: tarea.body.content,
+            cursoNombre: "Personal tarea",
+          })
+        });
+        
+        if (!res.ok) throw new Error('Error en la consulta');
+        
+        const data = await res.json();
+        setRespuesta(data.respuesta || 'Sin respuesta');
+        
+      }
+      catch (err) {
+        setError('No se pudo obtener la respuesta. Intenta de nuevo.');
+      } finally {
+        setCargando(false);
+      }
+    }
+    else if(tarea.Sistema === 'E-CEC') {
+      try {
+        const res = await fetch('http://localhost:3001/api/resolver-tarea', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titulo: tarea.Titulo_tarea,
+            descripcion: tarea.Contenido,
+            cursoNombre: tarea.Curso
+          })
+        });
+        
+        if (!res.ok) throw new Error('Error en la consulta');
+        
+        const data = await res.json();
+        setRespuesta(data.respuesta || 'Sin respuesta');
+        
+      }
+      catch (err) {
+        setError('No se pudo obtener la respuesta. Intenta de nuevo.');
+      } finally {
+        setCargando(false);
+      }
+    }
+    else {
+      try {
+        const res = await fetch('http://localhost:3001/api/resolver-tarea', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titulo: tarea.titulo,
+            descripcion: tarea.descripcion,
+            cursoNombre: tarea.cursoNombre,
+            fechaEntrega: tarea.fechaEntrega
+          })
+        });
+        
+        if (!res.ok) throw new Error('Error en la consulta');
+        
+        const data = await res.json();
+        setRespuesta(data.respuesta || 'Sin respuesta');
+        
+      } catch (err) {
+        setError('No se pudo obtener la respuesta. Intenta de nuevo.');
+      } finally {
+        setCargando(false);
+      }
+
+
     }
   };
 

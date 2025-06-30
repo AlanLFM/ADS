@@ -6,19 +6,19 @@ import {
 import ardillaIA from '../assets/IconoA.png';
 import AsistenteIA from '../IA/ia.jsx';
 
-const TareaCard = ({ tarea }) => {
+const TareaCardTodo = ({ tarea }) => {
   const [modalIAOpen, setModalIAOpen] = useState(false);
-
+  
   const abrirAsistenteIA = (e) => {
     e.stopPropagation();
     e.preventDefault();
     
-    console.log('Abriendo modal para tarea:', tarea.titulo);
+    console.log('Abriendo modal para tarea:', tarea.title);
     setModalIAOpen(true);
   };
 
   const cerrarAsistenteIA = () => {
-    console.log('Cerrando modal para tarea:', tarea.titulo);
+    console.log('Cerrando modal para tarea:', tarea.title);
     setModalIAOpen(false);
   };
 
@@ -30,14 +30,15 @@ const TareaCard = ({ tarea }) => {
 
   // ID único para este modal específico
   const modalId = `modal-ia-${tarea.idEntrega || tarea.id || Math.random()}`;
-
+  tarea.Sistema = 'Todo';
+  
   return (
     <>
   <MDBCard
     className="tarea-card mb-3 text-white"
     style={{
       position: 'relative',
-      background: 'linear-gradient(135deg, #25A667, #FBBC04)',
+      background: 'linear-gradient(135deg, #0078D4, #107C10)', // azul + verde Microsoft
       borderRadius: '1rem',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
     }}
@@ -72,7 +73,7 @@ const TareaCard = ({ tarea }) => {
             height: '34px',
             borderRadius: '50%',
             objectFit: 'cover',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
             pointerEvents: 'auto',
             transition: 'transform 0.2s ease-in-out'
           }}
@@ -92,26 +93,27 @@ const TareaCard = ({ tarea }) => {
 
       {/* Contenido de la tarjeta */}
       <div className="d-flex justify-content-between align-items-start mb-2 pe-5">
-        <MDBCardTitle className="tarea-titulo fs-5">
-          <MDBIcon fas icon="book" className="me-2 text-white" />
-          {tarea.titulo}
+        <MDBCardTitle className="fs-5">
+          <MDBIcon fas icon="book" className="me-2 text-light" />
+          {tarea.title}
         </MDBCardTitle>
       </div>
 
-      <MDBCardText className="curso-info mb-2">
-        <MDBIcon fas icon="graduation-cap" className="me-2 text-white" />
-        <strong>Curso:</strong> {tarea.cursoNombre}
+      <MDBCardText className="mb-2">
+        <MDBIcon fas icon="graduation-cap" className="me-2 text-light" />
+        <strong>Descripción:</strong>{' '}
+        {tarea.body.content ? tarea.body.content : 'Sin descripción'}
       </MDBCardText>
 
-      <MDBCardText className="fecha-info mb-3">
-        <MDBIcon fas icon="calendar" className="me-2 text-white" />
-        <strong>Fecha de entrega:</strong> {tarea.fechaEntrega}
+      <MDBCardText className="mb-2">
+        <MDBIcon fas icon="calendar" className="me-2 text-light" />
+        <strong>Estado:</strong> {tarea.status}
       </MDBCardText>
 
       {tarea.descripcion && tarea.descripcion !== 'Sin descripción' && (
-        <MDBCardText className="descripcion-tarea mb-3">
-          <MDBIcon fas icon="align-left" className="me-2 text-white" />
-          <strong>Descripción:</strong>
+        <MDBCardText className="mb-3">
+          <MDBIcon fas icon="align-left" className="me-2 text-light" />
+          <strong>Contenido:</strong>
           <div className="mt-1 ps-3">
             {tarea.descripcion.length > 150
               ? `${tarea.descripcion.substring(0, 150)}...`
@@ -123,7 +125,7 @@ const TareaCard = ({ tarea }) => {
       <div className="d-flex justify-content-between align-items-center">
         <small className="text-white">
           <MDBIcon fas icon="id-badge" className="me-1" />
-          ID: {tarea.idEntrega}
+          Importancia: {tarea.importance}
         </small>
         <small className="text-white">
           <MDBIcon fas icon="robot" className="me-1" />
@@ -141,8 +143,7 @@ const TareaCard = ({ tarea }) => {
   />
 </>
 
-
   );
 };
 
-export default TareaCard;
+export default TareaCardTodo;

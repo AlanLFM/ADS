@@ -105,11 +105,24 @@ const Tareas = sequelize.define('Tareas', {
   },
   Contenido: {
     type: DataTypes.TEXT
-  }
+  },
+  Sistema:{
+    type: DataTypes.STRING(50),
+  },
+  Id_Usuario: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  Curso: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
 }, {
   tableName: 'Tareas',
   timestamps: false
 });
+
+
 
 // RELACIONES
 Administrador.hasMany(Usuario, {

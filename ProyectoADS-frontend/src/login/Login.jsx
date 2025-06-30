@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import './Login.css';
 import logo from '../assets/logos.png';
-
+import { use } from 'react';
+import { jwtDecode } from 'jwt-decode';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +17,18 @@ const Login = () => {
   const handleClick = () => {
     navigate('/Registro');
   };
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      const decoded = jwtDecode(token);
+      if (decoded.tipo === 'admin') {
+        navigate('/GestionUsuarios');
+      } else if (decoded.tipo === 'usuario') {
+        navigate('/Inicio');
+      }
+    }
+  }, [navigate]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

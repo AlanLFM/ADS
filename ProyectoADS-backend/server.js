@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { Usuario, Administrador } = require('./Aplicacion');
+const { Usuario, Administrador,Tareas } = require('./Aplicacion');
 const sequelize = require('sequelize');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -9,7 +9,7 @@ const SECRET_KEY = 'crosstudy_jwt_secret';
 const RECAPTCHA_SECRET = '6LcdUWgrAAAAAEmz-zt2-BZUWOtESlt4gHnJmaDU';
 require('dotenv').config();
 const iaControl = require('./iaControl'); // Importar el controlador de IA
-
+const cheerio = require('cheerio');
 const PORT = 3001;
 const app = express();
 app.use(express.json());
@@ -222,12 +222,228 @@ app.get('/api/callbackMicrosoft', async (req, res) => {
       { where: { Id_Usuario: state } }
     );
 
-    res.send('Cuenta de Microsoft vinculada exitosamente. Puede cerrar esta pestaña.');
+    res.redirect('http://localhost:5173');
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).send('Error al vincular cuenta Microsoft.');
   }
 });
+
+app.get('/api/todo/tareas', async (req, res) => {
+  const { Id_Usuario } = req.query;
+  console.log(`Obteniendo tareas de To-Do para el usuario con ID: ${Id_Usuario}`);
+  
+  try {
+    // Buscar el token del usuario
+    const usuario = await Usuario.findOne({
+      where: { Id_Usuario },
+      attributes: ['Microsoft_AccessToken']
+    });
+
+    if (!usuario || !usuario.Microsoft_AccessToken) {
+      return res.status(404).json({ message: 'Token de Microsoft no encontrado para el usuario.' });
+    }
+
+    const accessToken = usuario.Microsoft_AccessToken;
+
+    // Obtener la lista por defecto (puede ser "Tasks" u otra)
+    const listas = await axios.get('https://graph.microsoft.com/v1.0/me/todo/lists', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    const listaPorDefecto = listas.data.value.find(lista => lista.displayName === "Tasks") || listas.data.value[0];
+    if (!listaPorDefecto) {
+      return res.status(404).json({ message: 'No se encontró una lista de tareas en To Do.' });
+    }
+
+    const listId = listaPorDefecto.id;
+
+    // Obtener las tareas de esa lista
+    const tareas = await axios.get(`https://graph.microsoft.com/v1.0/me/todo/lists/${listId}/tasks`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    res.json(tareas.data.value);
+  } catch (error) {
+    console.error('Error al obtener tareas de To-Do:', error.response?.data || error.message);
+    res.status(500).json({ message: 'Error al obtener tareas de Microsoft To Do.', error: error.message });
+  }
+});
+
+//E-CEC Moodle API para obtener tareas
+app.post('/api/moodle/tareas', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Faltan credenciales de Moodle.' });
+  }
+
+  try {
+    const loginPage = await axios.get('https://e-cec.org.mx/login/index.php', {
+  withCredentials: true,
+  headers: {
+    'User-Agent': 'Mozilla/5.0',
+    'Accept': 'text/html,application/xhtml+xml'
+  }
+});
+
+    const $ = cheerio.load(loginPage.data);
+    const logintoken = $('input[name="logintoken"]').val();
+    const cookies = loginPage.headers['set-cookie'];
+
+if (!cookies) {
+  
+  return res.status(500).json({ message: "No se recibieron cookies desde Moodle" });
+}
+const loginResponse = await axios.post('https://e-cec.org.mx/login/index.php',
+  new URLSearchParams({
+    username,
+    password,
+    logintoken
+  }).toString(),
+  {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Cookie': cookies.join('; '), // <- ahora sí seguro
+      'User-Agent': 'Mozilla/5.0'
+    },
+    withCredentials: true,
+    maxRedirects: 0,
+    validateStatus: status => status === 303 || status === 200
+  }
+);
+
+const sessionCookiesArr = loginResponse.headers['set-cookie'];
+if (!sessionCookiesArr) {
+  return res.status(500).json({ message: 'No se recibieron cookies de sesión después del login.' });
+}
+const sessionCookies = sessionCookiesArr.join('; ');
+
+
+    const dashboard = await axios.get('https://e-cec.org.mx/my', {
+      headers: {
+        Cookie: sessionCookies
+      }
+    });
+    const $$ = cheerio.load(dashboard.data);
+    const sesskey = $$('input[name="sesskey"]').val();
+
+    const payload = [{
+      index: 0,
+      methodname: "core_calendar_get_action_events_by_timesort",
+      args: {
+        limitnum: 20,
+        timesortfrom: 1749877200 // o Math.floor(Date.now() / 1000)
+      }
+    }];
+
+    const apiResponse = await axios.post(
+      `https://e-cec.org.mx/lib/ajax/service.php?sesskey=${sesskey}&info=core_calendar_get_action_events_by_timesort`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': sessionCookies
+        }
+      }
+    );
+
+    const eventos = apiResponse.data[0]?.data?.events || [];
+    console.log(eventos);
+    
+    res.json(eventos);
+    
+  } catch (error) {
+    console.error("Error al obtener tareas Moodle:", error.message);
+    res.status(500).json({ message: "No se pudieron obtener las tareas de Moodle", error: error.message });
+  }
+});
+
+app.post('/tareas', async (req, res) => {
+  const { tareas, plataforma } = req.body;
+  if (!tareas || !plataforma) {
+    return res.status(400).json({ message: 'Falta la pregunta' });
+  }
+  try {
+    const respuesta = await iaControl.preguntarIA(pregunta);
+    res.json({ respuesta });
+  } catch (error) {
+    console.error('Error al procesar la pregunta:', error.message);
+    res.status(500).json({ message: 'Error al procesar la pregunta', error: error.message });
+  }
+});
+
+
+app.post('/api/moodle/guardar-tareas', async (req, res) => {
+  const { tareas, Id_Usuario } = req.body;
+  console.log(`Guardando tareas para el usuario con ID: ${Id_Usuario}`);
+  
+  if (!Array.isArray(tareas) || !Id_Usuario) {
+    return res.status(400).json({ message: 'Faltan datos requeridos (tareas o Id_Usuario)' });
+  }
+
+  try {
+    let guardadas = 0;
+
+    for (const tarea of tareas) {
+      
+      const titulo = tarea.name?.trim() || 'Sin título';
+      const contenido = tarea.description?.trim() || 'Sin contenido';
+      const curso = tarea.course?.fullname?.trim() || 'Sin curso';
+      console.log("Curso obtenido " +curso);
+
+
+      // Verificar si ya existe una tarea igual para el mismo usuario y sistema
+      const [registro, creado] = await Tareas.findOrCreate({
+        where: {
+          Titulo_tarea: titulo,
+          Id_Usuario,
+          Sistema: 'E-CEC'
+        },
+        defaults: {
+          Contenido: contenido,
+          Sistema: 'E-CEC',
+          Id_Usuario,
+          Curso: curso
+        }
+      });
+
+      if (creado) guardadas++;
+    }
+
+    res.json({ message: `Tareas guardadas correctamente (${guardadas})` });
+  } catch (error) {
+    console.error('Error al guardar tareas:', error);
+    res.status(500).json({ message: 'Error al guardar tareas', error: error.message });
+  }
+});
+
+
+app.get('/api/usuario/:id/tareas', async (req, res) => {
+  const Id_Usuario = req.params.id;
+  const sistema = req.query.sistema; // opcional: ?sistema=CEC
+
+  try {
+    const where = { Id_Usuario };
+    if (sistema) {
+      where.Sistema = sistema;
+    }
+
+    const tareas = await Tareas.findAll({
+      where,
+      order: [['Id_Tarea', 'DESC']]
+    });
+
+    res.json(tareas);
+  } catch (error) {
+    console.error('Error al obtener tareas:', error);
+    res.status(500).json({ message: 'Error al obtener tareas', error: error.message });
+  }
+});
+
+
+
+
 
 
 app.listen(PORT, () => {
